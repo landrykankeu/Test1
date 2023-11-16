@@ -133,6 +133,7 @@ public class EmailWindow extends JFrame {
             // Etat Wait du curseur
             Card cardMail =  new Card(message.getPayload().getHeaders().get(16).getValue(),message.getPayload().getHeaders().get(19).getValue(),message.getPayload().getHeaders().get(18).getValue());
             i++;
+            // First Commit on GitHub
 
             cardMail.addMouseListener(new MouseAdapter(){
                 @Override
