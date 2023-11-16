@@ -1,4 +1,6 @@
 import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePartHeader;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -98,12 +100,18 @@ public class EmailWindow extends JFrame {
         estSide = new JPanel( new SpringLayout());
         Border border =  BorderFactory.createMatteBorder(0,3,0,0,Color.GRAY);
         estSide.setBorder(border);
-        Dimension d =  new Dimension(325,150);
+        Dimension d;
+        if (this.getWidth() < 400){
+            d =  new Dimension(324,600);
+        }else {
+            d =  new Dimension(500,1024);
+        }
         estSide.setPreferredSize(d);
         mainPanel.add(estSide,BorderLayout.EAST);
 
         // la barre de message
         southSide =  new JPanel(new FlowLayout());
+        southSide.setBorder( BorderFactory.createMatteBorder(3,0,0,0,Color.GRAY));
         progressBar =  new JProgressBar();
         progressBar.setStringPainted(true);
         southSide.add(progressBar);
@@ -131,10 +139,11 @@ public class EmailWindow extends JFrame {
             progressBar.setValue(i);
 
             // Etat Wait du curseur
-            Card cardMail =  new Card(message.getPayload().getHeaders().get(16).getValue(),message.getPayload().getHeaders().get(19).getValue(),message.getPayload().getHeaders().get(18).getValue());
+            MessagePartHeader sender = message.getPayload().getHeaders().stream().filter(messagePartHeader -> messagePartHeader.getName().equals("From")).findFirst().orElse(null);
+            MessagePartHeader date = message.getPayload().getHeaders().stream().filter(messagePartHeader -> messagePartHeader.getName().equals("Date")).findFirst().orElse(null);
+            MessagePartHeader text = message.getPayload().getHeaders().stream().filter(messagePartHeader -> messagePartHeader.getName().equals("Subject")).findFirst().orElse(null);
+            Card cardMail =  new Card(sender.getValue(),date.getValue(),text.getValue());
             i++;
-            // First Commit on GitHub
-
             cardMail.addMouseListener(new MouseAdapter(){
                 @Override
                 public void mouseEntered(MouseEvent e) {
@@ -147,7 +156,7 @@ public class EmailWindow extends JFrame {
                     );
                 }
             });
-            focusedPanel.add(cardMail,BorderLayout.CENTER);
+            focusedPanel.add(cardMail);
           }
         this.setCursor(Cursor.getDefaultCursor());
         progressBar.setVisible(false);

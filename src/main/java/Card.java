@@ -1,41 +1,45 @@
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 
 public class Card extends JPanel{
-    private JPanel cardPanel;
-    private JTextPane fewWordLabel;
+    private JTextPane subjectLabel;
     private JLabel dateTimeLabel;
     private JLabel senderLabel;
     private JPanel westSide;
-    public Card(String sender, String date, String text){
-        cardPanel =new JPanel(new BorderLayout());
+    public Card(String sender, String date, String subject){
+
+        this.setLayout(new BorderLayout());
 
         senderLabel = new JLabel(sender);
-        senderLabel.setHorizontalAlignment(JLabel.CENTER);
-        senderLabel.setFont(new Font("Arial Black",Font.BOLD,16));
+        senderLabel.setHorizontalAlignment(JLabel.LEFT);
+        senderLabel.setFont(new Font("Arial Black",Font.BOLD,15));
 
         dateTimeLabel = new JLabel(date);
-        dateTimeLabel.setPreferredSize(new Dimension(60,20));
-        dateTimeLabel.setFont(new Font("Arial",Font.PLAIN,16));
+        dateTimeLabel.setPreferredSize(new Dimension(80,50));
+        dateTimeLabel.setFont(new Font("Arial",Font.PLAIN,14));
 
-        fewWordLabel = new JTextPane();
-        fewWordLabel.setMargin(new Insets(3, 25, 3, 25));
-        fewWordLabel.setFont(new Font("Arial",Font.ITALIC,14));
-        fewWordLabel.setText(text);
+        subjectLabel = new JTextPane();
+        subjectLabel.setMargin(new Insets(3, 25, 3, 25));
+        subjectLabel.setFont(new Font("Arial",Font.ITALIC,14));
+        subjectLabel.setText(subject);
 
         westSide = new JPanel(new SpringLayout());
-        westSide.setPreferredSize(new Dimension(75,75));
-        cardPanel.add(senderLabel,BorderLayout.NORTH);
-        cardPanel.add(fewWordLabel,BorderLayout.EAST);
-        cardPanel.add(fewWordLabel,BorderLayout.CENTER);
-        cardPanel.add(senderLabel,BorderLayout.WEST);
+        westSide.setPreferredSize(new Dimension(20,20));
 
-        cardPanel.setVisible(true);
+        this.add(senderLabel,BorderLayout.NORTH);
+        this.add(subjectLabel,BorderLayout.CENTER);
+        this.add(dateTimeLabel,BorderLayout.EAST);
+        this.add(westSide,BorderLayout.WEST);
+
+        this.setVisible(true);
         Border color = BorderFactory.createLineBorder(Color.RED);
         Border round = BorderFactory.createEmptyBorder(10,10,10,10);
         Border border = BorderFactory.createCompoundBorder(color,round);
-        cardPanel.setBorder(border);
+        this.setBorder(border);
+        this.setBackground(Color.WHITE);
+        this.setPreferredSize(new Dimension(10,30));
 
     }
 
