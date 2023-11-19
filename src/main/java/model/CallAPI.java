@@ -1,3 +1,4 @@
+package model;
 
 import java.io.IOException;
 import java.lang.invoke.CallSite;
@@ -22,8 +23,7 @@ public class CallAPI{
         }catch (InterruptedException e){
             e.printStackTrace();
         }
-        return response.body();
-    }
+        return response.body();    }
 
 }
 

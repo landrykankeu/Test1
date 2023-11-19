@@ -1,8 +1,9 @@
+package view;
+
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePartHeader;
 import controller.Controller;
 import model.ClassGmail;
-import view.Card;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -13,18 +14,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-
-
-public class EmailWindow extends JFrame {
+public class View extends JFrame {
     private JMenuBar oneMenuBar;
     private JPanel body;
     private JPanel westSide;
     private  JPanel estSide;
     private JPanel southSide;
     private JProgressBar progressBar;
-    public EmailWindow(){
-    // La barre de menu
+    public View() throws GeneralSecurityException, IOException, InterruptedException {
 
+        // La barre de menu
         oneMenuBar =  new JMenuBar();
         JPanel mainPanel =  (JPanel) this.getContentPane();
         this.setVisible(true);
@@ -34,12 +33,12 @@ public class EmailWindow extends JFrame {
         // Le menu Home
         JMenu menuHome = new JMenu("Home");
 
-            JMenu newMailMenu  = new JMenu("New Mail");
-            newMailMenu.add("Mail");
-            newMailMenu.add("Event");
-            newMailMenu.add("Document");
-            newMailMenu.add("SpreadSheet");
-            newMailMenu.add("Presentation");
+        JMenu newMailMenu  = new JMenu("New Mail");
+        newMailMenu.add("Mail");
+        newMailMenu.add("Event");
+        newMailMenu.add("Document");
+        newMailMenu.add("SpreadSheet");
+        newMailMenu.add("Presentation");
 
         JMenu deleteMenu  = new JMenu("Empty others");
         deleteMenu.add("Empty Others");
@@ -74,20 +73,20 @@ public class EmailWindow extends JFrame {
 
         westSide = new JPanel(new CardLayout());
         DefaultMutableTreeNode explorerTree  = new DefaultMutableTreeNode("");
-            DefaultMutableTreeNode favoritesNode  = new DefaultMutableTreeNode("Favorites");
-                favoritesNode.add(new DefaultMutableTreeNode("inbox"));
-                favoritesNode.add(new DefaultMutableTreeNode("Sent Items"));
-                favoritesNode.add(new DefaultMutableTreeNode("Drafts"));
-            explorerTree.add(favoritesNode);
-                DefaultMutableTreeNode accountNode  = new DefaultMutableTreeNode("Account");
-                accountNode.add(new DefaultMutableTreeNode("inbox"));
-                accountNode.add(new DefaultMutableTreeNode("Sent Items"));
-                accountNode.add(new DefaultMutableTreeNode("Drafts"));
-                accountNode.add(new DefaultMutableTreeNode("Junks mails"));
-                accountNode.add(new DefaultMutableTreeNode("Delete items"));
-                accountNode.add(new DefaultMutableTreeNode("Archive"));
-                accountNode.add(new DefaultMutableTreeNode("Note_0"));
-            explorerTree.add(accountNode);
+        DefaultMutableTreeNode favoritesNode  = new DefaultMutableTreeNode("Favorites");
+        favoritesNode.add(new DefaultMutableTreeNode("inbox"));
+        favoritesNode.add(new DefaultMutableTreeNode("Sent Items"));
+        favoritesNode.add(new DefaultMutableTreeNode("Drafts"));
+        explorerTree.add(favoritesNode);
+        DefaultMutableTreeNode accountNode  = new DefaultMutableTreeNode("Account");
+        accountNode.add(new DefaultMutableTreeNode("inbox"));
+        accountNode.add(new DefaultMutableTreeNode("Sent Items"));
+        accountNode.add(new DefaultMutableTreeNode("Drafts"));
+        accountNode.add(new DefaultMutableTreeNode("Junks mails"));
+        accountNode.add(new DefaultMutableTreeNode("Delete items"));
+        accountNode.add(new DefaultMutableTreeNode("Archive"));
+        accountNode.add(new DefaultMutableTreeNode("Note_0"));
+        explorerTree.add(accountNode);
 
         DefaultTreeModel treeModel = new DefaultTreeModel(explorerTree);
 
@@ -97,6 +96,11 @@ public class EmailWindow extends JFrame {
 
         // la corps de l'application
         body =  new JPanel(new BorderLayout());
+        JTabbedPane tab =  new JTabbedPane();
+        JPanel focusedPanel =  new JPanel(new GridLayout(0,1));
+        JScrollPane scrollPanel = new JScrollPane(focusedPanel);
+        scrollPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        tab.add("Focused",scrollPanel);
         mainPanel.add(body,BorderLayout.CENTER);
 
         // la partie Est du main panel
@@ -119,6 +123,7 @@ public class EmailWindow extends JFrame {
         progressBar.setStringPainted(true);
         southSide.add(progressBar);
         mainPanel.add(southSide,BorderLayout.SOUTH);
+        loadMail();
 
         this.setSize( 800, 700 );
         this.setLocationRelativeTo( null );
@@ -130,6 +135,7 @@ public class EmailWindow extends JFrame {
         JTabbedPane tab =  new JTabbedPane();
         JPanel focusedPanel =  new JPanel(new GridLayout(0,1));
         JScrollPane scrollPanel = new JScrollPane(focusedPanel);
+
         scrollPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         tab.add("Focused",scrollPanel);
 
@@ -158,13 +164,21 @@ public class EmailWindow extends JFrame {
                     cardMail.setBackground(Color.lightGray
                     );
                 }
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    new Controller();
+                }
             });
+
             focusedPanel.add(cardMail);
-          }
+        }
         this.setCursor(Cursor.getDefaultCursor());
         progressBar.setVisible(false);
         JPanel otherPanel =  new JPanel();
         tab.add("Other",otherPanel);
         body.add(tab,BorderLayout.CENTER);
+
     }
-}
+    }
+

@@ -1,3 +1,5 @@
+package model;
+
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -9,7 +11,6 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
-import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
-/* class to demonstrate use of Gmail list labels API */
+/* class to demonstrate use of Gmail list messages */
 public class ClassGmail {
     /**
      * Application name.
@@ -37,7 +38,6 @@ public class ClassGmail {
      * If modifying these scopes, delete your previously saved tokens/ folder.
      */
     private static final List<String> SCOPES = Collections.singletonList(GmailScopes.GMAIL_READONLY);
-    private static final String CREDENTIALS_FILE_PATH = "../resources/client_secret.json";
 
     /**
      * Creates an authorized Credential object.
