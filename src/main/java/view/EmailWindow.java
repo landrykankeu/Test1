@@ -4,11 +4,8 @@ import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePartHeader;
 import controller.Controller;
 import model.ClassGmail;
-<<<<<<< Updated upstream:src/main/java/EmailWindow.java
 import view.Card;
-=======
 import org.checkerframework.checker.units.qual.C;
->>>>>>> Stashed changes:src/main/java/view/EmailWindow.java
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -17,11 +14,9 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
-import java.util.concurrent.Flow;
 
 
 public class EmailWindow extends JFrame{
@@ -72,11 +67,7 @@ public class EmailWindow extends JFrame{
         menuHome.add(btn5);
         menuHome.add(btn6);
 
-<<<<<<< Updated upstream:src/main/java/EmailWindow.java
-        JMenu menuView = new JMenu("view.View");
-=======
         JMenu menuView = new JMenu("view");
->>>>>>> Stashed changes:src/main/java/view/EmailWindow.java
         JMenu menuHelps = new JMenu("Help");
         oneMenuBar.add(btnHam);
         oneMenuBar.add(menuHome);

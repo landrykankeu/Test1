@@ -21,10 +21,12 @@ public class View extends JFrame {
     private  JPanel estSide;
     private JPanel southSide;
     private JProgressBar progressBar;
+    private  ClassGmail model;
     public View() throws GeneralSecurityException, IOException, InterruptedException {
 
         // La barre de menu
         oneMenuBar =  new JMenuBar();
+        model = new ClassGmail();
         JPanel mainPanel =  (JPanel) this.getContentPane();
         this.setVisible(true);
         mainPanel.setLayout(new BorderLayout());
@@ -144,30 +146,26 @@ public class View extends JFrame {
         progressBar.setMaximum(messages.size());
         progressBar.setMinimum(0);
         int i = 1;
-        for (Message message : new ClassGmail().getMessages()){
+        for (Message message :messages){
             progressBar.setValue(i);
 
             // Etat Wait du curseur
             MessagePartHeader sender = message.getPayload().getHeaders().stream().filter(messagePartHeader -> messagePartHeader.getName().equals("From")).findFirst().orElse(null);
             MessagePartHeader date = message.getPayload().getHeaders().stream().filter(messagePartHeader -> messagePartHeader.getName().equals("Date")).findFirst().orElse(null);
             MessagePartHeader text = message.getPayload().getHeaders().stream().filter(messagePartHeader -> messagePartHeader.getName().equals("Subject")).findFirst().orElse(null);
-            Card cardMail =  new Card(sender.getValue(),date.getValue(),text.getValue());
+            String  id  = message.getId();
+            Card cardMail =  new Card(sender.getValue(),date.getValue(),text.getValue(),id);
             i++;
             cardMail.addMouseListener(new MouseAdapter(){
-                @Override
                 public void mouseEntered(MouseEvent e) {
                     cardMail.setBackground(Color.GRAY);
                 }
-
-                @Override
                 public void mouseExited(MouseEvent e) {
                     cardMail.setBackground(Color.lightGray
                     );
                 }
-
-                @Override
                 public void mouseClicked(MouseEvent e) {
-                    new Controller();
+                    new Controller(model,cardMail);
                 }
             });
 
