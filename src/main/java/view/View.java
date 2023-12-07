@@ -10,27 +10,74 @@ import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-public class View extends JFrame {
-    private JMenuBar oneMenuBar;
-    private JPanel body;
-    private JPanel westSide;
-    private  JPanel estSide;
-    private JPanel southSide;
-    private JProgressBar progressBar;
-    private  ClassGmail model;
-    public View() throws GeneralSecurityException, IOException, InterruptedException {
+import java.util.concurrent.Flow;
 
-        // La barre de menu
-        oneMenuBar =  new JMenuBar();
-        model = new ClassGmail();
-        JPanel mainPanel =  (JPanel) this.getContentPane();
-        this.setVisible(true);
+public class View extends JFrame implements Flow.Subscriber {
+    private  static  JPanel mainPanel;
+    private  static  JPanel body;
+    private static JPanel westSide;
+    private  static JPanel estSide;
+    private static  JPanel southSide;
+    private static JProgressBar progressBar;
+    private static JEditorPane editorPane;
+    private final ClassGmail model;
+    private final Controller controller;
+    public View(Controller c,ClassGmail m) throws GeneralSecurityException, IOException, InterruptedException {
+        model = m;
+        controller = c;
+        model.subscribe(this);
+        mainPanel =  (JPanel) this.getContentPane();
         mainPanel.setLayout(new BorderLayout());
 
+        // Conctrution de la structure de la vue
+        setNorth();
+        setSouth();
+        setEast();
+        setWest();
+        setBody();
+
+        this.setVisible(true);
+        this.setSize( 800, 700 );
+        this.setLocationRelativeTo( null );
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+    public void displayMails() throws GeneralSecurityException, IOException, InterruptedException {
+        // Onglet du corps du main panel
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        JTabbedPane tab =  new JTabbedPane();
+        JPanel focusedPanel =  new JPanel(new GridLayout(0,1));
+        // Chargement des messages depuis l'API avec jauge d'évolution
+        java.util.List<Message> messages = model.getMessages();
+        progressBar.setMaximum(messages.size());
+        progressBar.setMinimum(0);
+        JRadioButton  radioButtons=  new JRadioButton();
+        int i = 1;
+        for (Message message :messages){
+            progressBar.setValue(i);
+
+            // Etat Wait du curseur
+            MessagePartHeader sender = message.getPayload().getHeaders().stream().filter(messagePartHeader -> messagePartHeader.getName().equals("From")).findFirst().orElse(null);
+            MessagePartHeader date = message.getPayload().getHeaders().stream().filter(messagePartHeader -> messagePartHeader.getName().equals("Date")).findFirst().orElse(null);
+            MessagePartHeader text = message.getPayload().getHeaders().stream().filter(messagePartHeader -> messagePartHeader.getName().equals("Subject")).findFirst().orElse(null);
+            String  id  = message.getId();
+            Card cardMail =  new Card(sender.getValue(),date.getValue(),text.getValue(),id);
+            i++;
+            controller.addCard(cardMail);
+            cardMail.addMouseListener(controller);
+            focusedPanel.add(cardMail);
+        }
+        tab.add("Focused",new JScrollPane(focusedPanel));
+        this.setCursor(Cursor.getDefaultCursor());
+        progressBar.setVisible(false);
+        JPanel otherPanel =  new JPanel();
+        tab.add("Other",otherPanel);
+        body.add(tab,BorderLayout.CENTER);
+    }
+    private static void  setNorth(){
+        // La barre de menu
+        JMenuBar oneMenuBar =  new JMenuBar();
         JButton btnHam = new JButton("");
         // Le menu Home
         JMenu menuHome = new JMenu("Home");
@@ -70,8 +117,16 @@ public class View extends JFrame {
         oneMenuBar.add(menuHelps);
 
         mainPanel.add(oneMenuBar,BorderLayout.NORTH);
-
-        // la partie Ouest du panel main
+    }
+    private static  void setSouth(){
+        southSide =  new JPanel(new FlowLayout());
+        southSide.setBorder( BorderFactory.createMatteBorder(3,0,0,0,Color.GRAY));
+        progressBar =  new JProgressBar();
+        progressBar.setStringPainted(true);
+        southSide.add(progressBar);
+        mainPanel.add(southSide,BorderLayout.SOUTH);
+    }
+    private static void setWest(){
 
         westSide = new JPanel(new CardLayout());
         DefaultMutableTreeNode explorerTree  = new DefaultMutableTreeNode("");
@@ -96,87 +151,34 @@ public class View extends JFrame {
         westSide.add(gTree);
         mainPanel.add(westSide,BorderLayout.WEST);
 
-        // la corps de l'application
-        body =  new JPanel(new BorderLayout());
-        JTabbedPane tab =  new JTabbedPane();
-        JPanel focusedPanel =  new JPanel(new GridLayout(0,1));
-        JScrollPane scrollPanel = new JScrollPane(focusedPanel);
-        scrollPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        tab.add("Focused",scrollPanel);
-        mainPanel.add(body,BorderLayout.CENTER);
-
-        // la partie Est du main panel
+    }
+    private static void setEast() {
         estSide = new JPanel( new SpringLayout());
+        editorPane = new JEditorPane();
+        editorPane.setContentType("text/html");
+        editorPane.setPreferredSize(new Dimension(324,600));
         Border border =  BorderFactory.createMatteBorder(0,3,0,0,Color.GRAY);
         estSide.setBorder(border);
-        Dimension d;
-        if (this.getWidth() < 400){
-            d =  new Dimension(324,600);
-        }else {
-            d =  new Dimension(500,1024);
-        }
-        estSide.setPreferredSize(d);
+        estSide.setPreferredSize(new Dimension(324,600));
+        estSide.add(new JScrollPane(editorPane));
         mainPanel.add(estSide,BorderLayout.EAST);
-
-        // la barre de message
-        southSide =  new JPanel(new FlowLayout());
-        southSide.setBorder( BorderFactory.createMatteBorder(3,0,0,0,Color.GRAY));
-        progressBar =  new JProgressBar();
-        progressBar.setStringPainted(true);
-        southSide.add(progressBar);
-        mainPanel.add(southSide,BorderLayout.SOUTH);
-        loadMail();
-
-        this.setSize( 800, 700 );
-        this.setLocationRelativeTo( null );
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
-    public void loadMail() throws GeneralSecurityException, IOException, InterruptedException {
-        // Onglet du corps du main panel
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        JTabbedPane tab =  new JTabbedPane();
-        JPanel focusedPanel =  new JPanel(new GridLayout(0,1));
-        JScrollPane scrollPanel = new JScrollPane(focusedPanel);
-
-        scrollPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        tab.add("Focused",scrollPanel);
-
-        // Chargement des messages depuis l'PI avec jauge d'évolution
-        java.util.List<Message> messages = new ClassGmail().getMessages();
-        progressBar.setMaximum(messages.size());
-        progressBar.setMinimum(0);
-        int i = 1;
-        for (Message message :messages){
-            progressBar.setValue(i);
-
-            // Etat Wait du curseur
-            MessagePartHeader sender = message.getPayload().getHeaders().stream().filter(messagePartHeader -> messagePartHeader.getName().equals("From")).findFirst().orElse(null);
-            MessagePartHeader date = message.getPayload().getHeaders().stream().filter(messagePartHeader -> messagePartHeader.getName().equals("Date")).findFirst().orElse(null);
-            MessagePartHeader text = message.getPayload().getHeaders().stream().filter(messagePartHeader -> messagePartHeader.getName().equals("Subject")).findFirst().orElse(null);
-            String  id  = message.getId();
-            Card cardMail =  new Card(sender.getValue(),date.getValue(),text.getValue(),id);
-            i++;
-            cardMail.addMouseListener(new MouseAdapter(){
-                public void mouseEntered(MouseEvent e) {
-                    cardMail.setBackground(Color.GRAY);
-                }
-                public void mouseExited(MouseEvent e) {
-                    cardMail.setBackground(Color.lightGray
-                    );
-                }
-                public void mouseClicked(MouseEvent e) {
-                    new Controller(model,cardMail);
-                }
-            });
-
-            focusedPanel.add(cardMail);
+    private static void setBody(){
+        body =  new JPanel(new BorderLayout());
+        mainPanel.add(body,BorderLayout.CENTER);
+    }
+    public void onSubscribe(Flow.Subscription subscription) {
+    }
+    public void onNext(Object item) {}
+    public void onError(Throwable throwable) {}
+    public void onComplete(){
+        try {
+            editorPane.setText(model.getFullMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        this.setCursor(Cursor.getDefaultCursor());
-        progressBar.setVisible(false);
-        JPanel otherPanel =  new JPanel();
-        tab.add("Other",otherPanel);
-        body.add(tab,BorderLayout.CENTER);
+    }
 
-    }
-    }
+}
+
 

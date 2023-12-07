@@ -9,11 +9,13 @@ public class Card extends JPanel {
     private JLabel dateTimeLabel;
     private JLabel senderLabel;
     private JPanel westSide;
-    private JLabel southSide;
+    private JPanel southSide;
+    private JButton deleteBTN;
     private  String id;
     public Card(String sender, String date, String subject, String id){
 
         this.setLayout(new BorderLayout());
+        this.id = id;
 
         senderLabel = new JLabel(sender);
         senderLabel.setHorizontalAlignment(JLabel.LEFT);
@@ -34,9 +36,9 @@ public class Card extends JPanel {
         westSide.setEnabled(false);
         westSide.setPreferredSize(new Dimension(20,20));
 
-        southSide = new JLabel();
-        southSide.setText(id);
-        this.id = id;
+        southSide = new JPanel(new FlowLayout());
+        deleteBTN = new JButton("Delete");
+        southSide.add(deleteBTN);
         southSide.setVisible(false);
 
 
@@ -47,10 +49,8 @@ public class Card extends JPanel {
         this.add(southSide,BorderLayout.SOUTH);
 
         this.setVisible(true);
-        Border color = BorderFactory.createLineBorder(Color.RED);
-        Border round = BorderFactory.createEmptyBorder(10,10,10,10);
-        Border border = BorderFactory.createCompoundBorder(color,round);
-        this.setBorder(border);
+        Border round = BorderFactory.createEmptyBorder(10,25,0,0);
+        this.setBorder(round);
         this.setBackground(Color.WHITE);
         this.setPreferredSize(new Dimension(10,30));
 
@@ -58,5 +58,7 @@ public class Card extends JPanel {
     public String getId(){
          return id;
     }
-
+    public JButton getDeleteBTN(){
+        return deleteBTN;
+    }
 }
